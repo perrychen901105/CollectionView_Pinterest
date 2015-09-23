@@ -26,6 +26,10 @@ class PhotoStreamViewController: UICollectionViewController {
     
     collectionView!.backgroundColor = UIColor.clearColor()
     collectionView!.contentInset = UIEdgeInsets(top: 23, left: 5, bottom: 10, right: 5)
+    
+    if let layout = collectionView?.collectionViewLayout as? PinterestLayout {
+      layout.delegate = self
+    }
   }
   
 }
@@ -40,6 +44,30 @@ extension PhotoStreamViewController {
     let cell = collectionView.dequeueReusableCellWithReuseIdentifier("AnnotatedPhotoCell", forIndexPath: indexPath) as! AnnotatedPhotoCell
     cell.photo = photos[indexPath.item]
     return cell
+  }
+  
+}
+
+extension PhotoStreamViewController : PinterestLayoutDelegate {
+    // 1
+  
+  // provides height of the photos
+  func collectionView(collectionView: UICollectionView, heightForPhotoAtIndexPath indexPath:NSIndexPath, withWidth width:CGFloat) -> CGFloat {
+    let photo = photos[indexPath.item]
+    let boundingRect = CGRect(x: 0, y: 0, width: width, height: CGFloat(MAXFLOAT))
+    let rect = AVMakeRectWithAspectRatioInsideRect(photo.image.size, boundingRect)
+    return rect.size.height
+  }
+  
+  // 2
+  func collectionView(collectionView: UICollectionView, heightForAnnotationAtIndexPath indexPath: NSIndexPath, withWidth width: CGFloat) -> CGFloat {
+    let annotationPadding = CGFloat(4)
+    let annotationHeaderHeight = CGFloat(17)
+    let photo = photos[indexPath.item]
+    let font = UIFont(name: "AvenirNext-Regular", size: 10)!
+    let commentHeight = photo.heightForComment(font, width: width)
+    let height = annotationPadding + annotationHeaderHeight + commentHeight + annotationPadding
+    return height
   }
   
 }
